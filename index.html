@@ -4,192 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eid Salami Spinner</title>
-    <style>
-        /* Import a nice Bengali/Arabic style font */
-        @import url('https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400;600;800&display=swap');
 
-        * {
-            box-sizing: border-box;
-            font-family: 'Anek Bangla', sans-serif;
-        }
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
 
-        body {
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            /* Islamic Geometric Pattern Background */
-            background-color: #0f172a;
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231e293b' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            color: white;
-            overflow: hidden;
-        }
-
-        .header {
-            background: #10b981;
-            padding: 15px 40px;
-            border-radius: 10px;
-            border: 3px solid #047857;
-            margin-top: 30px;
-            text-align: center;
-            box-shadow: 0 10px 15px rgba(0,0,0,0.3);
-        }
-
-        .header h1 {
-            margin: 0;
-            font-size: 2rem;
-            color: #fff;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-
-        .input-section {
-            margin: 20px 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        input {
-            padding: 12px 20px;
-            border-radius: 8px;
-            border: 2px solid #fbbf24;
-            font-size: 1.1rem;
-            width: 250px;
-            text-align: center;
-            outline: none;
-        }
-
-        .wheel-container {
-            position: relative;
-            width: 300px;
-            height: 300px;
-            margin: 20px 0;
-        }
-
-        /* The pointer */
-        .wheel-container::before {
-            content: '▼';
-            position: absolute;
-            top: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 40px;
-            color: #ef4444;
-            z-index: 10;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-
-        /* The actual wheel using CSS conic gradient */
-        .wheel {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 8px solid #fbbf24;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); /* Smooth deceleration */
-            background: conic-gradient(
-                #ef4444 0deg 60deg, 
-                #f59e0b 60deg 120deg, 
-                #10b981 120deg 180deg, 
-                #3b82f6 180deg 240deg, 
-                #8b5cf6 240deg 300deg, 
-                #ec4899 300deg 360deg
-            );
-            position: relative;
-        }
-
-        /* Wheel Text Labels */
-        .segment-text {
-            position: absolute;
-            width: 50%;
-            height: 20px;
-            top: 50%;
-            left: 50%;
-            transform-origin: 0% 50%;
-            font-weight: bold;
-            font-size: 1.2rem;
-            color: white;
-            text-shadow: 1px 1px 2px black;
-            display: flex;
-            align-items: center;
-            padding-left: 30px;
-        }
-
-        /* Positioning the text in the middle of each 60-degree slice */
-        .text-1 { transform: translateY(-50%) rotate(30deg); }   /* 100 */
-        .text-2 { transform: translateY(-50%) rotate(90deg); }   /* 500 */
-        .text-3 { transform: translateY(-50%) rotate(150deg); }  /* 1000 */
-        .text-4 { transform: translateY(-50%) rotate(210deg); }  /* দোয়া (Our Target) */
-        .text-5 { transform: translateY(-50%) rotate(270deg); }  /* 50 */
-        .text-6 { transform: translateY(-50%) rotate(330deg); }  /* 20 */
-
-        .spin-btn {
-            background: #fbbf24;
-            color: #000;
-            border: none;
-            padding: 12px 40px;
-            font-size: 1.5rem;
-            font-weight: 800;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.3);
-            transition: transform 0.1s;
-        }
-
-        .spin-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* Custom Modal for Result */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            color: black;
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-            z-index: 100;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            border: 4px solid #10b981;
-        }
-
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.7);
-            z-index: 99;
-        }
-
-        .footer {
-            margin-top: auto;
-            padding: 20px;
-            font-size: 0.9rem;
-            color: #94a3b8;
-        }
-
-        .footer span {
-            color: #fbbf24;
-            font-weight: bold;
-        }
-    </style>
+    <!-- Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
 
     <div class="header">
         <h1>ঈদ মোবারক!</h1>
-        <p style="margin:0; font-weight:600;">EID SALAMI SPINNER</p>
+        <p>EID SALAMI SPINNER</p>
     </div>
 
     <div class="input-section">
-        <label style="color: #fbbf24; font-weight: 600;">আপনার নাম লিখুন</label>
+        <label>আপনার নাম লিখুন</label>
         <input type="text" id="nameInput" placeholder="Enter your name...">
     </div>
 
@@ -210,77 +40,16 @@
         MADE BY <span>shovon</span>
     </div>
 
+    <!-- Modal -->
     <div class="modal-overlay" id="modalOverlay"></div>
+
     <div class="modal" id="resultModal">
-        <h2 style="color: #ef4444; margin-top: 0;">দুঃখিত!</h2>
-        <p style="font-size: 1.2rem;" id="resultMessage"></p>
-        <h1 style="color: #10b981; font-size: 3rem; margin: 10px 0;">দোয়া</h1>
-        <p>ঈদ মোবারক!</p>
-        <button class="spin-btn" style="font-size: 1rem; padding: 8px 20px;" onclick="closeModal()">ধন্যবাদ</button>
+        <h2 id="resultMessage"></h2>
+        <h1 id="resultValue"></h1>
+        <button class="spin-btn small" onclick="closeModal()">OK</button>
     </div>
 
-    <script>
-        let currentRotation = 0;
-        let isSpinning = false;
-
-        function spinWheel() {
-            const nameInput = document.getElementById('nameInput').value.trim();
-            
-            if (!nameInput) {
-                alert("দয়া করে আপনার নাম লিখুন! (Please enter your name)");
-                return;
-            }
-
-            if (isSpinning) return;
-            isSpinning = true;
-
-            const wheel = document.getElementById('wheel');
-            
-            // The rigged logic:
-            // "দোয়া" is at 210 degrees naturally. 
-            // To make the top pointer (0 deg / 360 deg) hit it, we need an offset.
-            // 360 - 210 = 150 degrees.
-            // We add 5 full spins (1800 degrees) + the 150 degree offset.
-            
-            const spins = 5 * 360; 
-            const rigTarget = 150; 
-            
-            // Increment rotation so if they spin again, it spins forward instead of resetting
-            currentRotation += spins + rigTarget; 
-
-            // Apply the spin
-            wheel.style.transform = `rotate(${currentRotation}deg)`;
-
-            // Wait for the CSS transition to finish (4 seconds) before showing the modal
-            setTimeout(() => {
-                showModal(nameInput);
-                isSpinning = false;
-                
-                // Reset the rotation behind the scenes so the next spin calculation is easy
-                // modulo 360 keeps the visual position exactly the same but resets the math
-                currentRotation = currentRotation % 360; 
-                wheel.style.transition = 'none';
-                wheel.style.transform = `rotate(${currentRotation}deg)`;
-                
-                // Force browser reflow to apply the instant transform
-                wheel.offsetHeight; 
-                
-                // Restore the transition for the next spin
-                wheel.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
-                
-            }, 4000);
-        }
-
-        function showModal(name) {
-            document.getElementById('resultMessage').innerText = `${name}, আপনার জন্য রয়েছে`;
-            document.getElementById('modalOverlay').style.display = 'block';
-            document.getElementById('resultModal').style.display = 'block';
-        }
-
-        function closeModal() {
-            document.getElementById('modalOverlay').style.display = 'none';
-            document.getElementById('resultModal').style.display = 'none';
-        }
-    </script>
+    <!-- JS -->
+    <script src="app.js"></script>
 </body>
 </html>
