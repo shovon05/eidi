@@ -1,55 +1,936 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eid Salami Spinner</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ঈদ সালামি স্পিনার ✨</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Sans+Bengali:wght@400;600;800&family=Cinzel+Decorative:wght@700;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="style.css">
+  <style>
+    :root {
+      --gold: #f5c842;
+      --gold-light: #ffe680;
+      --gold-dark: #b8860b;
+      --emerald: #0d9b6e;
+      --emerald-light: #16c98e;
+      --bg: #07100d;
+      --bg2: #0c1a14;
+      --card: rgba(255,255,255,0.04);
+      --card-border: rgba(245,200,66,0.18);
+      --text: #f0ede0;
+      --text-muted: #8a9e8e;
+    }
 
-    <!-- Confetti -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Noto Sans Bengali', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ── Starfield ── */
+    #stars-canvas {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    }
+
+    /* ── Ambient blobs ── */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .blob-1 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(13,155,110,0.22), transparent 70%); top: -100px; left: -150px; animation: drift1 14s ease-in-out infinite; }
+    .blob-2 { width: 450px; height: 450px; background: radial-gradient(circle, rgba(245,200,66,0.15), transparent 70%); bottom: -100px; right: -100px; animation: drift2 17s ease-in-out infinite; }
+    .blob-3 { width: 350px; height: 350px; background: radial-gradient(circle, rgba(13,155,110,0.1), transparent 70%); bottom: 200px; left: 100px; animation: drift1 20s ease-in-out infinite reverse; }
+
+    @keyframes drift1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(40px,-50px) scale(1.1); } }
+    @keyframes drift2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-50px,30px) scale(1.08); } }
+
+    /* ── Page wrapper ── */
+    .page {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 560px;
+      padding: 32px 20px 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+    }
+
+    /* ── Mosque silhouette ── */
+    .mosque-svg {
+      width: 100%;
+      max-width: 320px;
+      opacity: 0.12;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      position: relative;
+      padding-top: 16px;
+    }
+
+    .header .eid-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, rgba(245,200,66,0.12), rgba(13,155,110,0.12));
+      border: 1px solid var(--card-border);
+      border-radius: 999px;
+      padding: 6px 18px;
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      backdrop-filter: blur(6px);
+    }
+
+    .header h1 {
+      font-family: 'Amiri', serif;
+      font-size: clamp(42px, 10vw, 62px);
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 40%, var(--emerald-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+      letter-spacing: 1px;
+      filter: drop-shadow(0 0 30px rgba(245,200,66,0.3));
+      animation: shimmer 4s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0%,100% { filter: drop-shadow(0 0 20px rgba(245,200,66,0.3)); }
+      50% { filter: drop-shadow(0 0 40px rgba(245,200,66,0.6)); }
+    }
+
+    .header .subtitle {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      text-transform: uppercase;
+    }
+
+    /* Crescent moon decoration */
+    .crescent {
+      font-size: 28px;
+      animation: moonGlow 3s ease-in-out infinite;
+    }
+    @keyframes moonGlow {
+      0%,100% { text-shadow: 0 0 8px rgba(245,200,66,0.4); }
+      50% { text-shadow: 0 0 20px rgba(245,200,66,0.9); }
+    }
+
+    /* ── Divider ── */
+    .divider {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      opacity: 0.35;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .divider span { font-size: 18px; }
+
+    /* ── Input card ── */
+    .input-card {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 20px 24px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    .input-label {
+      display: block;
+      font-size: 13px;
+      color: var(--gold);
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      font-family: 'Noto Sans Bengali', sans-serif;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .name-input {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(245,200,66,0.2);
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: var(--text);
+      font-family: 'Noto Sans Bengali', sans-serif;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .name-input::placeholder { color: var(--text-muted); }
+    .name-input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(245,200,66,0.12);
+    }
+
+    /* ── Pointer ── */
+    .wheel-wrapper {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .pointer {
+      width: 0;
+      height: 0;
+      border-left: 14px solid transparent;
+      border-right: 14px solid transparent;
+      border-bottom: 28px solid var(--gold);
+      filter: drop-shadow(0 0 8px rgba(245,200,66,0.8));
+      z-index: 10;
+      position: relative;
+      margin-bottom: -4px;
+      animation: pointerPulse 2s ease-in-out infinite;
+    }
+    @keyframes pointerPulse {
+      0%,100% { filter: drop-shadow(0 0 6px rgba(245,200,66,0.6)); }
+      50% { filter: drop-shadow(0 0 16px rgba(245,200,66,1)); }
+    }
+
+    /* ── Wheel ── */
+    .wheel-outer {
+      width: clamp(260px, 70vw, 340px);
+      height: clamp(260px, 70vw, 340px);
+      border-radius: 50%;
+      padding: 6px;
+      background: conic-gradient(from 0deg,
+        var(--gold) 0deg 4deg,
+        transparent 4deg 60deg,
+        var(--gold) 60deg 64deg,
+        transparent 64deg 120deg,
+        var(--gold) 120deg 124deg,
+        transparent 124deg 180deg,
+        var(--gold) 180deg 184deg,
+        transparent 184deg 240deg,
+        var(--gold) 240deg 244deg,
+        transparent 244deg 300deg,
+        var(--gold) 300deg 304deg,
+        transparent 304deg 360deg
+      );
+      box-shadow:
+        0 0 0 2px rgba(245,200,66,0.3),
+        0 0 40px rgba(245,200,66,0.2),
+        0 0 80px rgba(13,155,110,0.15),
+        0 20px 60px rgba(0,0,0,0.6);
+      animation: wheelGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes wheelGlow {
+      0%,100% { box-shadow: 0 0 0 2px rgba(245,200,66,0.3), 0 0 40px rgba(245,200,66,0.2), 0 0 80px rgba(13,155,110,0.15), 0 20px 60px rgba(0,0,0,0.6); }
+      50% { box-shadow: 0 0 0 2px rgba(245,200,66,0.5), 0 0 60px rgba(245,200,66,0.35), 0 0 100px rgba(13,155,110,0.25), 0 20px 60px rgba(0,0,0,0.6); }
+    }
+
+    .wheel-canvas-wrap {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      overflow: hidden;
+      position: relative;
+    }
+
+    #wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 1.0);
+    }
+
+    /* Center cap */
+    .wheel-center {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 54px; height: 54px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #2a2a2a, #0a0a0a);
+      border: 3px solid var(--gold);
+      box-shadow: 0 0 16px rgba(245,200,66,0.5), inset 0 0 8px rgba(0,0,0,0.8);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 5;
+      font-size: 22px;
+    }
+
+    /* ── Spin button ── */
+    .spin-btn {
+      position: relative;
+      padding: 16px 56px;
+      background: linear-gradient(135deg, #d4a017 0%, var(--gold) 40%, #e8b820 70%, #c8960f 100%);
+      border: none;
+      border-radius: 999px;
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #1a0e00;
+      letter-spacing: 3px;
+      cursor: pointer;
+      overflow: hidden;
+      box-shadow:
+        0 4px 20px rgba(245,200,66,0.4),
+        0 1px 0 rgba(255,255,255,0.4) inset,
+        0 -2px 0 rgba(0,0,0,0.3) inset;
+      transition: transform 0.15s, box-shadow 0.2s;
+    }
+    .spin-btn::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%);
+      transition: left 0.5s;
+    }
+    .spin-btn:hover::before { left: 100%; }
+    .spin-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(245,200,66,0.55), 0 1px 0 rgba(255,255,255,0.4) inset, 0 -2px 0 rgba(0,0,0,0.3) inset; }
+    .spin-btn:active { transform: translateY(1px); }
+    .spin-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* ── Modal overlay ── */
+    #modalOverlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+    }
+
+    /* ── Result modal ── */
+    #resultModal {
+      display: none;
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -48%) scale(0.9);
+      z-index: 101;
+      width: min(480px, 90vw);
+      background: linear-gradient(145deg, #0d1f17, #0a1710);
+      border: 1px solid var(--card-border);
+      border-radius: 28px;
+      padding: 40px 36px;
+      text-align: center;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(245,200,66,0.1), inset 0 1px 0 rgba(255,255,255,0.06);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    #resultModal.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .modal-icon {
+      font-size: 56px;
+      margin-bottom: 16px;
+      animation: iconFloat 3s ease-in-out infinite;
+      display: block;
+    }
+    @keyframes iconFloat {
+      0%,100% { transform: translateY(0) rotate(-5deg); }
+      50% { transform: translateY(-8px) rotate(5deg); }
+    }
+
+    .modal-title {
+      font-family: 'Amiri', serif;
+      font-size: 28px;
+      color: var(--gold-light);
+      margin-bottom: 8px;
+    }
+
+    .modal-name {
+      font-size: 13px;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      margin-bottom: 24px;
+    }
+
+    .modal-result-box {
+      background: linear-gradient(135deg, rgba(13,155,110,0.2), rgba(245,200,66,0.1));
+      border: 1px solid rgba(245,200,66,0.3);
+      border-radius: 16px;
+      padding: 20px 28px;
+      margin-bottom: 20px;
+    }
+
+    .modal-doa-arabic {
+      font-family: 'Amiri', serif;
+      font-size: 32px;
+      color: var(--gold);
+      direction: rtl;
+      line-height: 1.5;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 0 12px rgba(245,200,66,0.4));
+    }
+
+    .modal-doa-bn {
+      font-family: 'Noto Sans Bengali', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--emerald-light);
+      letter-spacing: 2px;
+    }
+
+    .modal-message {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 24px;
+      font-style: italic;
+    }
+
+    .modal-close-btn {
+      padding: 12px 36px;
+      background: transparent;
+      border: 1px solid var(--gold);
+      border-radius: 999px;
+      color: var(--gold);
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 12px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .modal-close-btn:hover {
+      background: rgba(245,200,66,0.1);
+      box-shadow: 0 0 20px rgba(245,200,66,0.2);
+    }
+
+    /* ── Spinning ring ── */
+    .spinning-ring {
+      position: absolute;
+      inset: -10px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      background: conic-gradient(from var(--angle, 0deg), var(--gold) 0%, transparent 30%, transparent 70%, var(--gold) 100%) border-box;
+      -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: destination-out;
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity 0.3s;
+      animation: ringRotate 1s linear infinite;
+    }
+    .is-spinning .spinning-ring { opacity: 1; }
+    @property --angle {
+      syntax: '<angle>'; initial-value: 0deg; inherits: false;
+    }
+    @keyframes ringRotate {
+      to { --angle: 360deg; }
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      opacity: 0.5;
+    }
+    .footer span { color: var(--gold); opacity: 0.8; }
+
+    /* ── Islamic pattern overlay ── */
+    .pattern-top {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--gold), var(--emerald-light), var(--gold), transparent);
+      opacity: 0.7;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 380px) {
+      .page { padding: 24px 14px 50px; gap: 20px; }
+      .spin-btn { padding: 14px 40px; font-size: 14px; }
+    }
+  </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>ঈদ মোবারক!</h1>
-        <p>EID SALAMI SPINNER</p>
+<canvas id="stars-canvas"></canvas>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+<div class="pattern-top"></div>
+
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="eid-badge">
+      <span class="crescent">☽</span>
+      <span>Eid Salami Spinner</span>
+      <span class="crescent">☽</span>
     </div>
+    <h1>ঈদ মোবারক!</h1>
+    <p class="subtitle">May joy find you this Eid</p>
+  </div>
 
-    <div class="input-section">
-        <label>আপনার নাম লিখুন</label>
-        <input type="text" id="nameInput" placeholder="Enter your name...">
+  <div class="divider"><span>✦</span></div>
+
+  <!-- Input -->
+  <div class="input-card">
+    <label class="input-label">আপনার নাম লিখুন 🌙</label>
+    <div class="input-row">
+      <input type="text" id="nameInput" class="name-input" placeholder="নাম দিন এখানে..." autocomplete="off" />
     </div>
+  </div>
 
-    <div class="wheel-container">
-        <div class="wheel" id="wheel">
-            <div class="segment-text text-1">৳100</div>
-            <div class="segment-text text-2">৳500</div>
-            <div class="segment-text text-3">৳1000</div>
-            <div class="segment-text text-4">দোয়া</div>
-            <div class="segment-text text-5">৳50</div>
-            <div class="segment-text text-6">৳20</div>
-        </div>
+  <!-- Wheel -->
+  <div class="wheel-wrapper">
+    <div class="pointer"></div>
+    <div class="wheel-outer" id="wheelOuter">
+      <div class="wheel-canvas-wrap">
+        <canvas id="wheel"></canvas>
+        <div class="spinning-ring"></div>
+      </div>
+      <div class="wheel-center">🌙</div>
     </div>
+  </div>
 
-    <button class="spin-btn" onclick="spinWheel()">SPIN</button>
+  <!-- Spin Button -->
+  <button class="spin-btn" id="spinBtn" onclick="spinWheel()">SPIN</button>
 
-    <div class="footer">
-        MADE BY <span>shovon</span>
-    </div>
+  <div class="footer">Made with 🤍 by <a href="https://github.com/shovon05" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;border-bottom:1px solid rgba(245,200,66,0.3);padding-bottom:1px;transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='rgba(245,200,66,0.3)'">shovon</a></div>
 
-    <!-- Modal -->
-    <div class="modal-overlay" id="modalOverlay"></div>
+</div>
 
-    <div class="modal" id="resultModal">
-        <h2 id="resultMessage"></h2>
-        <h1 id="resultValue"></h1>
-        <button class="spin-btn small" onclick="closeModal()">OK</button>
-    </div>
+<!-- Modal -->
+<div id="modalOverlay" onclick="closeModal()"></div>
+<div id="resultModal">
+  <span class="modal-icon">🤲</span>
+  <div class="modal-title">আপনার সালামি!</div>
+  <div class="modal-name" id="modalName"></div>
+  <div class="modal-result-box">
+    <div class="modal-doa-arabic">اللَّهُمَّ بَارِكْ</div>
+    <div class="modal-doa-bn">দোয়া 🌙</div>
+  </div>
+  <p class="modal-message" id="modalMessage"></p>
+  <button class="modal-close-btn" onclick="closeModal()">আমিন ✦ Amen</button>
+</div>
 
-    <!-- JS -->
-    <script src="app.js"></script>
+<script>
+// ── Stars ──
+(function() {
+  const canvas = document.getElementById('stars-canvas');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    stars = Array.from({length: 120}, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.4 + 0.2,
+      alpha: Math.random(),
+      speed: Math.random() * 0.008 + 0.003,
+      phase: Math.random() * Math.PI * 2
+    }));
+  }
+  function draw(t) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    stars.forEach(s => {
+      s.alpha = 0.3 + 0.5 * Math.abs(Math.sin(t * s.speed + s.phase));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,240,180,${s.alpha})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(draw);
+})();
+
+// ── Wheel Drawing ──
+const SEGMENTS = ["৳১০০","৳৫০০","৳১০০০","দোয়া","৳৫০","৳২০"];
+const COLORS = [
+  ["#1a6e4a","#22925f"],
+  ["#8b6914","#c49a1e"],
+  ["#155e3c","#1d7d50"],
+  ["#0d4d32","#115c3d"],
+  ["#7a5c10","#a87d18"],
+  ["#124535","#175e47"]
+];
+
+const DOA_MSGS = [
+  "আল্লাহ আপনার জীবন সুখময় করুন। আমীন।",
+  "আপনার জন্য অনেক দোয়া রইল, টাকা না হলেও ভালোবাসা আছে! 💚",
+  "দোয়া তো অমূল্য — টাকায় কি সব কেনা যায়? 🌙",
+  "আল্লাহ আপনাকে দুনিয়া ও আখিরাতে উত্তম দান করুন।",
+  "একটি খাঁটি দোয়া হাজার টাকার চেয়ে দামি। ঈদ মোবারক! ✨"
+];
+
+// ── Audio Context (tick sounds) ──
+let audioCtx = null;
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function playTick(speed) {
+  try {
+    const ctx = getAudio();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    // Higher pitch & louder when slow (dramatic near end)
+    const slowness = Math.max(0, 1 - speed / 18);
+    o.frequency.value = 420 + slowness * 340;
+    g.gain.setValueAtTime(0.18 + slowness * 0.28, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
+    o.type = 'triangle';
+    o.start(ctx.currentTime);
+    o.stop(ctx.currentTime + 0.07);
+  } catch(e) {}
+}
+function playNearMissSound() {
+  try {
+    const ctx = getAudio();
+    // Ascending tense chord
+    [300, 450, 600].forEach((freq, i) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = freq;
+      o.type = 'sine';
+      const t = ctx.currentTime + i * 0.06;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.15, t + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+      o.start(t); o.stop(t + 0.36);
+    });
+  } catch(e) {}
+}
+
+// ── State ──
+let currentAngle = 0;   // degrees, accumulated
+let isSpinning = false;
+let animFrame = null;
+
+// ── Wheel Draw ──
+function drawWheel() {
+  const canvas = document.getElementById('wheel');
+  const size = canvas.parentElement.clientWidth;
+  canvas.width = size; canvas.height = size;
+  canvas.style.transform = `rotate(${currentAngle}deg)`;
+  const ctx = canvas.getContext('2d');
+  const cx = size / 2, cy = size / 2, r = size / 2 - 2;
+  const seg = (Math.PI * 2) / SEGMENTS.length;
+
+  SEGMENTS.forEach((label, i) => {
+    const start = i * seg - Math.PI / 2;
+    const end = start + seg;
+    const [c1, c2] = COLORS[i];
+    const grad = ctx.createRadialGradient(cx * 0.6, cy * 0.6, r * 0.1, cx, cy, r);
+    grad.addColorStop(0, c2);
+    grad.addColorStop(1, c1);
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, start, end);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r * 0.98, start, start + seg * 0.5);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(255,255,255,0.04)';
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(start + seg / 2);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = label === 'দোয়া' ? '#f5c842' : 'rgba(255,255,255,0.9)';
+    ctx.font = label === 'দোয়া'
+      ? `bold ${size * 0.065}px 'Noto Sans Bengali', sans-serif`
+      : `600 ${size * 0.058}px 'Noto Sans Bengali', sans-serif`;
+    ctx.shadowColor = 'rgba(0,0,0,0.7)';
+    ctx.shadowBlur = 4;
+    ctx.fillText(label, r * 0.88, size * 0.022);
+    ctx.restore();
+  });
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(245,200,66,0.4)';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+}
+
+drawWheel();
+window.addEventListener('resize', drawWheel);
+
+// ══════════════════════════════════════════════════════
+// PHYSICS ENGINE — verified angle math
+//
+// drawWheel() paints segment[i] starting at angle:
+//   start_i = i * SEG_DEG - 90°   (because we offset by -Math.PI/2)
+//   center_i = i * SEG_DEG - 90° + SEG_DEG/2
+//
+// The wheel canvas rotates by `currentAngle` degrees (CSS transform).
+// After rotation, segment[i]'s center is at:
+//   visual_angle = center_i + currentAngle
+//
+// The pointer sits at the TOP = 270° in standard math, but since we
+// use CSS rotate (clockwise) the pointer catches whatever is at 270°
+// in the rotated frame, i.e. visual_angle ≡ 270° (mod 360)
+//
+// Solve for currentAngle:
+//   (i * SEG_DEG - 90 + SEG_DEG/2) + currentAngle ≡ 270  (mod 360)
+//   currentAngle ≡ 270 - (i * SEG_DEG - 90 + SEG_DEG/2)   (mod 360)
+//   currentAngle ≡ 360 - i*SEG_DEG - SEG_DEG/2             (mod 360)
+// ══════════════════════════════════════════════════════
+
+const SEG_COUNT = SEGMENTS.length;   // 6
+const SEG_DEG   = 360 / SEG_COUNT;   // 60
+const DOA_INDEX = 3;                  // দোয়া is segment 3
+
+// Returns the canonical resting angle [0,360) for segment idx
+function canonicalAngle(idx) {
+  const raw = 360 - idx * SEG_DEG - SEG_DEG / 2;
+  return ((raw % 360) + 360) % 360;
+}
+
+// Returns an absolute target angle >= currentAngle + minAdvance
+// that puts segment[idx] under the pointer, with optional jitter.
+function targetAngle(idx, minAdvance, jitterDeg) {
+  const canonical = canonicalAngle(idx);
+  const cur = ((currentAngle % 360) + 360) % 360;
+  let delta = canonical - cur;
+  if (delta < 0) delta += 360;
+  if (delta === 0) delta = 360;          // never stand still
+  // Ensure we advance at least minAdvance degrees
+  while (delta < minAdvance) delta += 360;
+  const jitter = jitterDeg ? (Math.random() - 0.5) * jitterDeg : 0;
+  return currentAngle + delta + jitter;
+}
+
+// Near-miss: land ~5° before the দোয়া boundary (inside ৳১০০০ slice, index 2)
+// দোয়া canonical rest angle = canonicalAngle(3) = 150°
+// The boundary between ৳১০০০ and দোয়া is at canonical 150° - SEG_DEG/2 = 120°
+// Landing at 125° means pointer is 5° inside ৳১০০০, tantalizingly close
+function nearMissAngle(minAdvance) {
+  const doaCanonical = canonicalAngle(DOA_INDEX); // e.g. 150°
+  // 5° short of দোয়া's canonical center, still inside ৳১০০০
+  const nm = ((doaCanonical - SEG_DEG / 2 + 5) % 360 + 360) % 360;
+  const cur = ((currentAngle % 360) + 360) % 360;
+  let delta = nm - cur;
+  if (delta < 0) delta += 360;
+  if (delta === 0) delta = 360;
+  while (delta < minAdvance) delta += 360;
+  return currentAngle + delta;
+}
+
+function easeOutExpo(t) {
+  return t >= 1 ? 1 : 1 - Math.pow(2, -10 * t);
+}
+function easeInOutQuad(t) {
+  return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+}
+
+function spinWheel() {
+  const name = document.getElementById('nameInput').value.trim();
+  if (!name) { shakeInput(); return; }
+  if (isSpinning) return;
+  isSpinning = true;
+
+  try { getAudio().resume(); } catch(e) {}
+  document.getElementById('spinBtn').disabled = true;
+  document.getElementById('wheelOuter').classList.add('is-spinning');
+
+  const canvas = document.getElementById('wheel');
+  const ptr    = document.querySelector('.pointer');
+  const outer  = document.getElementById('wheelOuter');
+
+  // Phase 1: spin fast to near-miss position (at least 5 full rotations)
+  const nmTarget    = nearMissAngle(5 * 360 + (Math.random() * 360));
+  const p1Angle0    = currentAngle;
+
+  // Phase 2: crawl forward from near-miss to দোয়া (at least 1 segment forward)
+  // Computed after phase 1 settles so we use the exact resting currentAngle
+  let p2Target      = null;
+  let p2Angle0      = null;
+
+  const PHASE1_MS = 4000;
+  const PAUSE_MS  = 650;
+  const PHASE2_MS = 1300;
+
+  let phase         = 1;
+  let t0            = null;
+  let lastSeg       = -1;
+  let pausePending  = false;
+
+  function frame(now) {
+    if (t0 === null) t0 = now;
+    const elapsed = now - t0;
+
+    // ── PHASE 1 ──────────────────────────────────────
+    if (phase === 1) {
+      const t     = Math.min(elapsed / PHASE1_MS, 1);
+      const eased = easeOutExpo(t);
+      currentAngle = p1Angle0 + (nmTarget - p1Angle0) * eased;
+      canvas.style.transform = `rotate(${currentAngle}deg)`;
+
+      // speed ≈ remaining distance × derivative of easeOutExpo
+      const speed = (nmTarget - p1Angle0) * Math.pow(2, -10 * t) * Math.LN2 * 10 / PHASE1_MS;
+
+      const seg = Math.floor(((currentAngle % 360) + 360) % 360 / SEG_DEG);
+      if (seg !== lastSeg) {
+        lastSeg = seg;
+        playTick(speed * 1000); // convert to deg/s-ish for pitch
+        ptr.style.transition = 'transform 0.03s';
+        ptr.style.transform  = 'rotate(15deg) scaleY(1.45)';
+        setTimeout(() => { ptr.style.transform = ''; ptr.style.transition = 'transform 0.08s'; }, 55);
+      }
+
+      if (t < 1) {
+        animFrame = requestAnimationFrame(frame);
+      } else if (!pausePending) {
+        pausePending = true;
+        currentAngle = nmTarget; // lock exactly
+        canvas.style.transform = `rotate(${currentAngle}deg)`;
+
+        // Near-miss FX
+        playNearMissSound();
+        outer.style.transition  = 'box-shadow 0.12s';
+        outer.style.boxShadow   = '0 0 0 4px rgba(255,140,0,0.75), 0 0 70px rgba(255,100,0,0.5), 0 20px 60px rgba(0,0,0,0.6)';
+        ptr.style.transition    = 'transform 0.08s';
+        ptr.style.transform     = 'rotate(-20deg) scaleY(1.6)';
+        setTimeout(() => { ptr.style.transform = 'rotate(10deg)'; }, 100);
+        setTimeout(() => { ptr.style.transform = ''; }, 210);
+
+        setTimeout(() => {
+          outer.style.boxShadow = '';
+          // Bulletproof phase-2: compute exact দোয়া landing from current position
+          p2Angle0 = currentAngle;
+          const doaCanonical = canonicalAngle(DOA_INDEX); // the one true rest angle for দোয়া
+          const curMod = ((currentAngle % 360) + 360) % 360;
+          let fwd = doaCanonical - curMod;
+          if (fwd <= 2) fwd += 360; // always advance forward, never snap backward
+          p2Target = currentAngle + fwd; // dead center, no jitter
+          phase  = 2;
+          t0     = null;
+          lastSeg = -1;
+          animFrame = requestAnimationFrame(frame);
+        }, PAUSE_MS);
+      }
+
+    // ── PHASE 2 ──────────────────────────────────────
+    } else if (phase === 2) {
+      const t     = Math.min(elapsed / PHASE2_MS, 1);
+      const eased = easeInOutQuad(t);
+      currentAngle = p2Angle0 + (p2Target - p2Angle0) * eased;
+      canvas.style.transform = `rotate(${currentAngle}deg)`;
+
+      const seg = Math.floor(((currentAngle % 360) + 360) % 360 / SEG_DEG);
+      if (seg !== lastSeg) {
+        lastSeg = seg;
+        playTick(2);
+        ptr.style.transition = 'transform 0.05s';
+        ptr.style.transform  = 'rotate(12deg) scaleY(1.3)';
+        setTimeout(() => { ptr.style.transform = ''; ptr.style.transition = 'transform 0.1s'; }, 80);
+      }
+
+      if (t < 1) {
+        animFrame = requestAnimationFrame(frame);
+      } else {
+        // ── DONE — snap to exact দোয়া center ──
+        currentAngle = p2Target;
+        canvas.style.transform = `rotate(${currentAngle}deg)`;
+        isSpinning = false;
+        document.getElementById('spinBtn').disabled = false;
+        outer.classList.remove('is-spinning');
+        setTimeout(() => showResult(name), 350);
+      }
+    }
+  }
+
+  animFrame = requestAnimationFrame(frame);
+}
+
+function showResult(name) {
+  const modal = document.getElementById('resultModal');
+  const overlay = document.getElementById('modalOverlay');
+  const msg = DOA_MSGS[Math.floor(Math.random() * DOA_MSGS.length)];
+
+  document.getElementById('modalName').textContent = `প্রিয় ${name} — আপনার জন্য...`;
+  document.getElementById('modalMessage').textContent = msg;
+
+  overlay.style.display = 'block';
+  modal.style.display = 'block';
+  setTimeout(() => modal.classList.add('show'), 20);
+
+  setTimeout(() => {
+    confetti({ particleCount: 60, spread: 70, colors: ['#f5c842','#0d9b6e','#ffe680','#16c98e'], origin: {y: 0.6} });
+    setTimeout(() => confetti({ particleCount: 40, spread: 90, angle: 60, colors: ['#f5c842','#0d9b6e'], origin: {x: 0, y: 0.6} }), 300);
+    setTimeout(() => confetti({ particleCount: 40, spread: 90, angle: 120, colors: ['#f5c842','#0d9b6e'], origin: {x: 1, y: 0.6} }), 400);
+  }, 100);
+}
+
+function closeModal() {
+  const modal = document.getElementById('resultModal');
+  modal.classList.remove('show');
+  setTimeout(() => {
+    modal.style.display = 'none';
+    document.getElementById('modalOverlay').style.display = 'none';
+  }, 350);
+}
+
+function shakeInput() {
+  const inp = document.getElementById('nameInput');
+  inp.style.borderColor = '#e05050';
+  inp.style.boxShadow = '0 0 0 3px rgba(224,80,80,0.2)';
+  inp.placeholder = 'আগে নাম দিন! 😅';
+  setTimeout(() => {
+    inp.style.borderColor = '';
+    inp.style.boxShadow = '';
+    inp.placeholder = 'নাম দিন এখানে...';
+  }, 1600);
+}
+</script>
 </body>
 </html>
